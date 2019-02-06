@@ -2,11 +2,7 @@ import React, { Component } from  'react';
 import PropTypes from 'prop-types';
 import BookmarksContext from '../BookmarksContext';
 import config from '../config'
-import './EditBookmark.css';
-
-const Required = () => (
-  <span className='EditBookmark__required'>*</span>
-)
+import BookmarkForm from '../BookmarkForm/BookmarkForm'
 
 class EditBookmark extends Component {
   static propTypes = {
@@ -22,11 +18,11 @@ class EditBookmark extends Component {
 
   state = {
     error: null,
-    id: '',
-    title: '',
-    url: '',
-    description: '',
-    rating: 1,
+    id: null,
+    title: null,
+    url: null,
+    description: null,
+    rating: null,
   };
 
   componentDidMount() {
@@ -58,30 +54,12 @@ class EditBookmark extends Component {
       })
   }
 
-  handleChangeTitle = e => {
-    this.setState({ title: e.target.value })
-  };
-
-  handleChangeUrl = e => {
-    this.setState({ url: e.target.value })
-  };
-
-  handleChangeDescription = e => {
-    this.setState({ description: e.target.value })
-  };
-
-  handleChangeRating = e => {
-    this.setState({ rating: e.target.value })
-  };
-
-  handleSubmit = e => {
-    e.preventDefault()
+  handleSubmit = (bookmark, callback) => {
+    this.setState({ error: null })
     const { bookmarkId } = this.props.match.params
-    const { id, title, url, description, rating } = this.state
-    const newBookmark = { id, title, url, description, rating }
     fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
       method: 'PATCH',
-      body: JSON.stringify(newBookmark),
+      body: JSON.stringify(bookmark),
       headers: {
         'content-type': 'application/json',
         'authorization': `Bearer ${config.API_KEY}`
@@ -92,8 +70,8 @@ class EditBookmark extends Component {
           return res.json().then(error => Promise.reject(error))
       })
       .then(() => {
-        this.resetFields(newBookmark)
-        this.context.updateBookmark(newBookmark)
+        callback(callback)
+        this.context.updateBookmark(bookmark)
         this.props.history.push('/')
       })
       .catch(error => {
@@ -102,106 +80,24 @@ class EditBookmark extends Component {
       })
   }
 
-  resetFields = (newFields) => {
-    this.setState({
-      id: newFields.id || '',
-      title: newFields.title || '',
-      url: newFields.url || '',
-      description: newFields.description || '',
-      rating: newFields.rating || '',
-    })
-  }
-
   handleClickCancel = () => {
     this.props.history.push('/')
   };
 
   render() {
-    const { error, title, url, description, rating } = this.state
+    const { error, id, title, url, description, rating } = this.state
+    const bookmark = { id, title, url, description, rating }
     return (
       <section className='EditBookmark'>
         <h2>Edit bookmark</h2>
-        <form
-          className='EditBookmark__form'
-          onSubmit={this.handleSubmit}
-        >
-          <div className='EditBookmark__error' role='alert'>
-            {error && <p>{error.message}</p>}
-          </div>
-          <input
-            type='hidden'
-            name='id'
+        {id && (
+          <BookmarkForm
+            onSubmit={this.handleSubmit}
+            onCancel={this.handleClickCancel}
+            error={error}
+            bookmark={bookmark}
           />
-          <div>
-            <label htmlFor='title'>
-              Title
-              {' '}
-              <Required />
-            </label>
-            <input
-              type='text'
-              name='title'
-              id='title'
-              placeholder='Great website!'
-              required
-              value={title}
-              onChange={this.handleChangeTitle}
-            />
-          </div>
-          <div>
-            <label htmlFor='url'>
-              URL
-              {' '}
-              <Required />
-            </label>
-            <input
-              type='url'
-              name='url'
-              id='url'
-              placeholder='https://www.great-website.com/'
-              required
-              value={url}
-              onChange={this.handleChangeUrl}
-            />
-          </div>
-          <div>
-            <label htmlFor='description'>
-              Description
-            </label>
-            <textarea
-              name='description'
-              id='description'
-              value={description}
-              onChange={this.handleChangeDescription}
-            />
-          </div>
-          <div>
-            <label htmlFor='rating'>
-              Rating
-              {' '}
-              <Required />
-            </label>
-            <input
-              type='number'
-              name='rating'
-              id='rating'
-              min='1'
-              max='5'
-              required
-              value={rating}
-              onChange={this.handleChangeRating}
-            />
-          </div>
-          <div className='EditBookmark__buttons'>
-            <button type='button' onClick={this.handleClickCancel}>
-              Cancel
-            </button>
-            {' '}
-            <button type='submit'>
-              Save
-            </button>
-          </div>
-        </form>
+        )}
       </section>
     );
   }

@@ -6,7 +6,7 @@ import BookmarksContext from '../BookmarksContext';
 import config from '../config';
 import './BookmarkItem.css';
 
-function deleteBookmarkRequest(bookmarkId, cb) {
+function deleteBookmarkRequest(bookmarkId, callback) {
   fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
     method: 'DELETE',
     headers: {
@@ -15,13 +15,11 @@ function deleteBookmarkRequest(bookmarkId, cb) {
     }
   })
     .then(res => {
-      if (!res.ok) {
+      if (!res.ok)
         return res.json().then(error => Promise.reject(error))
-      }
-      return res.json()
     })
-    .then(data => {
-      cb(bookmarkId)
+    .then(noContent => {
+      callback(bookmarkId)
     })
     .catch(error => {
       console.error(error)
