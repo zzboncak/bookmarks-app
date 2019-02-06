@@ -11,7 +11,7 @@ const Required = () => (
 class AddBookmark extends Component {
   static propTypes = {
     history: PropTypes.shape({
-      push: PropTypes.funct,
+      push: PropTypes.func,
     }).isRequired,
   };
 
@@ -29,7 +29,7 @@ class AddBookmark extends Component {
       title: title.value,
       url: url.value,
       description: description.value,
-      rating: rating.value,
+      rating: Number(rating.value),
     }
     this.setState({ error: null })
     fetch(config.API_ENDPOINT, {

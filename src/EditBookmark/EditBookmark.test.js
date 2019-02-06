@@ -1,12 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Rating from './Rating';
+import EditBookmark from './EditBookmark';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
   const props = {
-    value: 3
+    match: { params: {} },
+    history: {
+      push: () => {}
+    },
   }
-  ReactDOM.render(<Rating {...props} />, div);
+  ReactDOM.render(<EditBookmark {...props} />, div);
   ReactDOM.unmountComponentAtNode(div);
 });
