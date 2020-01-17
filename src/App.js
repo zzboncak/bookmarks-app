@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AddBookmark from './AddBookmark/AddBookmark';
 import BookmarkList from './BookmarkList/BookmarkList';
+import UpdateBookmark from './UpdateBookmark/UpdateBookmark';
 import Nav from './Nav/Nav';
 import config from './config';
 import './App.css';
@@ -88,6 +89,11 @@ class App extends Component {
           {page === 'list' && (
             <BookmarkList
               bookmarks={bookmarks}
+            />
+          )}
+          {page === 'update' && (
+            <UpdateBookmark 
+            onClickCancel={() => this.changePage('list')}
             />
           )}
         </div>
