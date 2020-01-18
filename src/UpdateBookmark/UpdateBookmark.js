@@ -1,48 +1,79 @@
 import React from 'react';
 import './UpdateBookmark.css';
+import config from '../config'; 
 
 class UpdateBookmark extends React.Component {
-    state = {
-        error: null,
-        title: '',
-        url: '',
-        description: '',
-        rating: 0
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            error: null,
+            bookmark: {
+                id: this.props.bookmarkInfo.id,
+                title: this.props.bookmarkInfo.title,
+                url: this.props.bookmarkInfo.url,
+                description: this.props.bookmarkInfo.description,
+                rating: this.props.bookmarkInfo.rating
+            }
+        }
+    }
 
     handleSubmit = e => {
         e.preventDefault();
-        console.log('This worked!');
+        let url = config.API_ENDPOINT + '/' + this.props.bookmarkInfo.id;
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+              'content-type': 'application/json',
+              'Authorization': `Bearer ${config.API_KEY}`
+            },
+            body: JSON.stringify(this.state.bookmark)
+        })
+            .then(res => {
+                if(!res.ok) {
+                    throw new Error(`Could not update the bookmark`)
+                }
+                this.props.updateBookmark(this.state.bookmark);
+                this.props.history.push('/');
+            })
+            .catch(error => console.log(error));
+
     }
 
     onTitleChange = e => {
+        let currentBookmarkState = this.state.bookmark;
+        currentBookmarkState.title = e.target.value;
         this.setState({
-            title: e.target.value
+            bookmark: currentBookmarkState
         });
     }
 
     onUrlChange = e => {
+        let currentBookmarkState = this.state.bookmark;
+        currentBookmarkState.url = e.target.value;
         this.setState({
-            url: e.target.value
+            bookmark: currentBookmarkState
         });
     }
 
     onDescriptionChange = e => {
+        let currentBookmarkState = this.state.bookmark;
+        currentBookmarkState.description = e.target.value;
         this.setState({
-            description: e.target.value
+            bookmark: currentBookmarkState
         });
     }
 
     onRatingChange = e => {
-        console.log(this.state);
+        let currentBookmarkState = this.state.bookmark;
+        currentBookmarkState.rating = e.target.value;
         this.setState({
-            rating: e.target.value
+            bookmark: currentBookmarkState
         });
     }
 
     render() {
-        const { error } = this.state
-        const { onClickCancel } = this.props
+        const error = this.state.error;
+        const history = this.props.history;
         return (
         <section className='UpdateBookmark'>
             <h2>Update a bookmark</h2>
@@ -62,8 +93,7 @@ class UpdateBookmark extends React.Component {
                     type='text'
                     name='title'
                     id='title'
-                    placeholder='Great website!'
-                    value={this.state.title}
+                    value={this.state.bookmark.title}
                     onChange={this.onTitleChange}
                 />
             </div>
@@ -73,11 +103,10 @@ class UpdateBookmark extends React.Component {
                 {' '}
                 </label>
                 <input
-                    type='url'
+                    type='text'
                     name='url'
                     id='url'
-                    placeholder='https://www.great-website.com/'
-                    value={this.state.url}
+                    value={this.state.bookmark.url}
                     onChange={this.onUrlChange}
                 />
             </div>
@@ -88,7 +117,8 @@ class UpdateBookmark extends React.Component {
                 <textarea
                     name='description'
                     id='description'
-                    value={this.state.description}
+                    placeholder='enter your description here'
+                    value={this.state.bookmark.description}
                     onChange={this.onDescriptionChange}
                 />
             </div>
@@ -103,12 +133,12 @@ class UpdateBookmark extends React.Component {
                     id='rating'
                     min='1'
                     max='5'
-                    value={this.state.rating}
+                    value={this.state.bookmark.rating}
                     onChange={this.onRatingChange}
                 />
             </div>
             <div className='UpdateBookmark__buttons'>
-                <button type='button' onClick={onClickCancel}>
+                <button type='button' onClick={() => history.push('/')}>
                 Cancel
                 </button>
                 {' '}
